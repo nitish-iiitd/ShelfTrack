@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShelfTrack - Personal Product Inventory</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/css/app.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark app-navbar sticky-top">
+    <div class="container-fluid px-3 px-md-4">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+        <span class="brand-icon"><i class="bi bi-box-seam"></i></span>
+        <span>
+          <strong>ShelfTrack</strong>
+          <small class="d-block brand-tagline">Track what you have. Know what’s finished.</small>
+        </span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="topNavbar">
+        <div class="ms-auto d-flex flex-wrap gap-2 mt-3 mt-lg-0">
+          <button id="btnImportJson" class="btn btn-light btn-sm">
+            <i class="bi bi-upload me-1"></i> Import JSON
+          </button>
+          <button id="btnExportJson" class="btn btn-outline-light btn-sm">
+            <i class="bi bi-download me-1"></i> Export JSON
+          </button>
+          <button id="btnOpenBackups" class="btn btn-outline-light btn-sm">
+            <i class="bi bi-clock-history me-1"></i> Backups
+          </button>
+          <button id="btnDeleteAll" class="btn btn-danger btn-sm">
+            <i class="bi bi-trash3 me-1"></i> Delete All
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container-fluid px-3 px-md-4 py-4">
+    <section class="hero-card mb-4">
+      <div class="row align-items-center g-3">
+        <div class="col-lg-7">
+          <h1 class="h3 mb-2">Your simple product inventory</h1>
+          <p class="mb-0 text-muted">Organize daily-use products by category, sub-category, and status. Data stays in this browser.</p>
+        </div>
+        <div class="col-lg-5">
+          <div class="input-group search-box">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input id="searchInput" type="search" class="form-control" placeholder="Search products, categories, sub-categories...">
+            <button id="btnClearSearch" class="btn btn-outline-secondary" type="button">Clear</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="row g-3 mb-4" id="summaryCards"></section>
+
+    <section class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+      <div>
+        <h2 class="h5 mb-1">Inventory</h2>
+        <div class="text-muted small">Use accordions to browse categories and manage products.</div>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <button id="btnSeedSampleData" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-stars me-1"></i> Load Sample
+        </button>
+        <button id="btnAddCategory" class="btn btn-primary btn-sm">
+          <i class="bi bi-plus-lg me-1"></i> Add Category
+        </button>
+      </div>
+    </section>
+
+    <section id="emptyState" class="empty-state d-none">
+      <i class="bi bi-box2-heart"></i>
+      <h3>No inventory yet</h3>
+      <p>Create your first category or load sample data to begin.</p>
+      <button class="btn btn-primary" id="btnEmptyAddCategory">
+        <i class="bi bi-plus-lg me-1"></i> Add Category
+      </button>
+    </section>
+
+    <section id="inventoryContainer"></section>
+  </main>
+
+  <input type="file" id="jsonFileInput" class="d-none" accept="application/json,.json">
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+  <!-- Category Modal -->
+  <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="categoryForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="categoryModalTitle">Add Category</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="categoryId">
+            <label class="form-label" for="categoryName">Category name</label>
+            <input class="form-control" id="categoryName" required maxlength="80" placeholder="e.g. Makeup">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Category</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub-category Modal -->
+  <div class="modal fade" id="subCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="subCategoryForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="subCategoryModalTitle">Add Sub-category</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="subCategoryId">
+            <input type="hidden" id="subCategoryCategoryId">
+            <label class="form-label" for="subCategoryName">Sub-category name</label>
+            <input class="form-control" id="subCategoryName" required maxlength="80" placeholder="e.g. Lipsticks">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Sub-category</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="productForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="productModalTitle">Add Product</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="productId">
+            <input type="hidden" id="productCategoryId">
+            <input type="hidden" id="productSubCategoryId">
+            <div class="mb-3">
+              <label class="form-label" for="productName">Product name</label>
+              <input class="form-control" id="productName" required maxlength="120" placeholder="e.g. Loreal Lips">
+            </div>
+            <div>
+              <label class="form-label" for="productStatus">Status</label>
+              <select class="form-select" id="productStatus" required>
+                <option value="in_use">In Use</option>
+                <option value="finished">Finished</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Product</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmModalTitle">Confirm Action</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="confirmModalBody"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirmModalYes">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete All Modal -->
+  <div class="modal fade" id="deleteAllModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-danger">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Delete All Data</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>This will delete all categories, sub-categories, and products from this browser.</p>
+          <p class="fw-semibold">A backup copy will be saved locally before deletion.</p>
+          <label class="form-label" for="deleteAllConfirmText">Type <code>delete-all</code> to confirm</label>
+          <input class="form-control" id="deleteAllConfirmText" placeholder="delete-all">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="deleteAllConfirmButton" disabled>Delete Everything</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Backups Modal -->
+  <div class="modal fade" id="backupsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-clock-history me-2"></i>Local Backups</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="backupsList"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
