@@ -50,6 +50,9 @@ export function renderInventory(container, emptyState, snapshot, searchTerm = ''
 
   emptyState.classList.toggle('d-none', hasData);
   container.classList.toggle('d-none', !hasData);
+  
+  const footerBtnContainer = document.getElementById('addCategoryActionContainer');
+  if (footerBtnContainer) footerBtnContainer.classList.toggle('d-none', !hasData);
 
   if (!hasData) {
     container.innerHTML = '';
