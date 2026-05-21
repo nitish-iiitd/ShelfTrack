@@ -36,6 +36,7 @@ const elements = {
   btnExportJson: document.getElementById('btnExportJson'),
   btnDeleteAll: document.getElementById('btnDeleteAll'),
   btnOpenBackups: document.getElementById('btnOpenBackups'),
+  btnDocs: document.getElementById('btnDocs'),
   jsonFileInput: document.getElementById('jsonFileInput'),
   toastContainer: document.getElementById('toastContainer'),
 };
@@ -67,6 +68,10 @@ function bindEvents() {
   });
   elements.btnDeleteAll.addEventListener('click', openDeleteAllModal);
   elements.btnOpenBackups.addEventListener('click', openBackupsModal);
+  if (elements.btnDocs) elements.btnDocs.addEventListener('click', () => {
+    closeMobileMenu();
+    window.location.href = 'docs.html';
+  });
   elements.btnClearSearch.addEventListener('click', clearSearch);
 
   elements.searchInput.addEventListener('input', (event) => {
