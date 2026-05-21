@@ -1,6 +1,5 @@
-const CACHE_NAME = 'shelftrack-v1';
+const CACHE_NAME = 'shelftrack-v2';
 const ASSETS_TO_CACHE = [
-  './',
   './index.html',
   './icon.svg',
   './manifest.json',
@@ -40,8 +39,17 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match('./index.html');
+      })
+    );
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
+    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
       if (cachedResponse) {
         return cachedResponse;
       }
