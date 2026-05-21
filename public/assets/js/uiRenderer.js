@@ -81,7 +81,7 @@ export function renderInventory(container, emptyState, snapshot, searchTerm = ''
     const categoryTotalCount = categoryProducts.length;
 
     const categoryCollapseId = `category-collapse-${category.id}`;
-    const isCategoryExpanded = expandedCategoryIds.has(categoryCollapseId);
+    const isCategoryExpanded = !!query || expandedCategoryIds.has(categoryCollapseId);
 
     const renderedSubCategories = categorySubCategories.map((subCategory) => {
       const subCategoryProducts = snapshot.products.filter((item) => item.sub_category_id === subCategory.id);
@@ -90,7 +90,7 @@ export function renderInventory(container, emptyState, snapshot, searchTerm = ''
 
       if (query && !subCategoryMatches && filteredProducts.length === 0) return '';
 
-      const isSubExpanded = expandedSubcategoryIds.has(`subcategory-collapse-${subCategory.id}`);
+      const isSubExpanded = !!query || expandedSubcategoryIds.has(`subcategory-collapse-${subCategory.id}`);
       return renderSubCategory(subCategory, filteredProducts, subCategoryProducts, isSubExpanded);
     }).filter(Boolean).join('');
 
