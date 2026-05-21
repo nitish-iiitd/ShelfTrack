@@ -10,18 +10,6 @@ export function renderSummaryCards(container, snapshot) {
 
   const cards = [
     {
-      title: 'Categories',
-      value: totalCategories,
-      icon: 'bi-folder2-open',
-      className: 'summary-primary',
-    },
-    {
-      title: 'Sub-categories',
-      value: totalSubCategories,
-      icon: 'bi-diagram-3',
-      className: 'summary-info',
-    },
-    {
       title: 'Products',
       value: totalProducts,
       icon: 'bi-box-seam',
@@ -109,7 +97,7 @@ export function renderInventory(container, emptyState, snapshot, searchTerm = ''
 
     return `
       <div class="inventory-card" data-category-id="${category.id}">
-        <div class="category-header d-flex align-items-center flex-nowrap w-100 py-1 px-2 border-bottom gap-2">
+        <div class="category-header d-flex align-items-center flex-nowrap w-100 py-1 px-2 gap-2">
           <div
             class="category-toggle d-flex align-items-center flex-grow-1 text-start bg-transparent border-0 p-0 overflow-hidden"
             role="button"
@@ -118,11 +106,11 @@ export function renderInventory(container, emptyState, snapshot, searchTerm = ''
             aria-expanded="${isCategoryExpanded}"
             aria-controls="${categoryCollapseId}"
           >
-            <i class="bi bi-chevron-right toggle-chevron me-2 text-muted"></i>
-            <span class="category-icon me-2 flex-shrink-0">
+            <i class="bi bi-chevron-right toggle-chevron me-1 text-muted"></i>
+            <span class="category-icon me-1 flex-shrink-0">
               <i class="bi bi-folder2-open"></i>
             </span>
-            <span class="category-title text-wrap me-2 fw-bold" style="font-size:0.85rem; line-height:1.2;">${escapeHtml(category.name)}</span>
+            <span class="category-title text-wrap me-1 fw-bold" style="font-size:0.95rem; line-height:1.2;">${escapeHtml(category.name)}</span>
             <span class="category-count text-muted small flex-shrink-0" style="font-size:0.75rem;">${categoryFinishedCount}/${categoryTotalCount} finished</span>
           </div>
 
@@ -167,7 +155,7 @@ function renderSubCategory(subCategory, filteredProducts, allSubCategoryProducts
 
   return `
     <div class="subcategory-card" data-sub-category-id="${subCategory.id}">
-      <div class="subcategory-header d-flex align-items-center flex-nowrap w-100 py-1 px-2 border-bottom gap-2">
+      <div class="subcategory-header d-flex align-items-center flex-nowrap w-100 py-1 px-2 gap-2">
         <div
           class="subcategory-toggle d-flex align-items-center flex-grow-1 text-start bg-transparent border-0 p-0 overflow-hidden"
           role="button"
@@ -176,8 +164,8 @@ function renderSubCategory(subCategory, filteredProducts, allSubCategoryProducts
           aria-expanded="${isSubExpanded}"
           aria-controls="${subCategoryCollapseId}"
         >
-          <i class="bi bi-chevron-right toggle-chevron me-2 text-muted"></i>
-          <span class="subcategory-title text-wrap me-2 fw-bold" style="font-size:0.8rem; line-height:1.2;">${escapeHtml(subCategory.name)}</span>
+          <i class="bi bi-chevron-right toggle-chevron me-1 text-muted"></i>
+          <span class="subcategory-title text-wrap me-1 fw-bold" style="font-size:0.8rem; line-height:1.2;">${escapeHtml(subCategory.name)}</span>
           <span class="subcategory-count text-muted small flex-shrink-0" style="font-size:0.75rem;">${finishedCount}/${totalCount} finished</span>
         </div>
 
@@ -224,7 +212,7 @@ function renderProduct(product) {
   const nameStyle = isFinished ? 'text-decoration-line-through text-muted' : '';
 
   return `
-    <div class="product-row d-flex align-items-center flex-nowrap w-100 py-1 px-2 border-bottom gap-2" data-product-id="${product.id}">
+    <div class="product-row d-flex align-items-center flex-nowrap w-100 py-1 px-2 gap-2" data-product-id="${product.id}">
       <div class="product-name text-wrap flex-grow-1 fw-semibold mb-0 ${nameStyle}" style="font-size:0.85rem; line-height:1.2; cursor:pointer;" data-action="toggle-product" data-product-id="${product.id}">${escapeHtml(product.name)}</div>
       
       <input 
