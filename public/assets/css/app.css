@@ -394,7 +394,7 @@ main.container-fluid {
   box-shadow: var(--app-shadow);
 }
 
-.empty-state i {
+.empty-state > i {
   font-size: 3rem;
   color: var(--app-primary);
 }
