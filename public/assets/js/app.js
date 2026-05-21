@@ -61,7 +61,10 @@ function bindEvents() {
   elements.btnEmptyAddCategory.addEventListener('click', openAddCategoryModal);
   elements.btnSeedSampleData.addEventListener('click', handleSeedSampleData);
   elements.btnExportJson.addEventListener('click', handleExportJson);
-  elements.btnImportJson.addEventListener('click', () => elements.jsonFileInput.click());
+  elements.btnImportJson.addEventListener('click', () => {
+    closeMobileMenu();
+    elements.jsonFileInput.click();
+  });
   elements.btnDeleteAll.addEventListener('click', openDeleteAllModal);
   elements.btnOpenBackups.addEventListener('click', openBackupsModal);
   elements.btnClearSearch.addEventListener('click', clearSearch);
@@ -248,6 +251,7 @@ async function handleInventoryClick(event) {
 }
 
 async function handleSeedSampleData() {
+  closeMobileMenu();
   try {
     await seedSampleData();
     showToast('Sample data loaded.', 'success');
@@ -258,6 +262,7 @@ async function handleSeedSampleData() {
 }
 
 async function handleExportJson() {
+  closeMobileMenu();
   try {
     await exportInventory();
     showToast('JSON exported.', 'success');
@@ -284,6 +289,7 @@ async function handleImportJson(event) {
 }
 
 function openDeleteAllModal() {
+  closeMobileMenu();
   document.getElementById('deleteAllConfirmText').value = '';
   document.getElementById('deleteAllConfirmButton').disabled = true;
   modals.deleteAll.show();
@@ -301,6 +307,7 @@ async function handleDeleteAllConfirmed() {
 }
 
 async function openBackupsModal() {
+  closeMobileMenu();
   const backups = await getBackups();
   const backupsList = document.getElementById('backupsList');
 
@@ -395,4 +402,12 @@ function showToast(message, type = 'primary') {
   const toast = new bootstrap.Toast(toastElement, { delay: 2800 });
   toast.show();
   toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
+}
+
+function closeMobileMenu() {
+  const navbarCollapse = document.getElementById('topNavbar');
+  if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+    const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+    if (bsCollapse) bsCollapse.hide();
+  }
 }

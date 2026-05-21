@@ -70,8 +70,7 @@ export function renderInventory(container, emptyState, snapshot, searchTerm = ''
       if (el.id.startsWith('subcategory-collapse-')) expandedSubcategoryIds.add(el.id);
     });
   } else {
-    // First render: categories expanded by default
-    snapshot.categories.forEach((c) => expandedCategoryIds.add(`category-collapse-${c.id}`));
+    // First render: start fully collapsed
   }
 
   const html = snapshot.categories.map((category) => {
