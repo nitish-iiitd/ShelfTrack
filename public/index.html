@@ -9,7 +9,7 @@
   <link href="assets/css/app.css" rel="stylesheet">
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark app-navbar sticky-top">
+  <nav class="navbar navbar-expand-lg navbar-light app-navbar sticky-top">
     <div class="container-fluid px-3 px-md-4">
       <a class="navbar-brand d-flex align-items-center gap-2" href="#">
         <span class="brand-icon"><i class="bi bi-box-seam"></i></span>
@@ -25,16 +25,19 @@
 
       <div class="collapse navbar-collapse" id="topNavbar">
         <div class="ms-auto d-flex flex-wrap gap-2 mt-3 mt-lg-0">
+          <button id="btnSeedSampleData" class="btn btn-light btn-sm">
+            <i class="bi bi-stars me-1"></i> Load Sample
+          </button>
           <button id="btnImportJson" class="btn btn-light btn-sm">
-            <i class="bi bi-upload me-1"></i> Import JSON
+            <i class="bi bi-box-arrow-in-down me-1"></i> Import Data
           </button>
-          <button id="btnExportJson" class="btn btn-outline-light btn-sm">
-            <i class="bi bi-download me-1"></i> Export JSON
+          <button id="btnExportJson" class="btn btn-light btn-sm">
+            <i class="bi bi-box-arrow-up me-1"></i> Export Data
           </button>
-          <button id="btnOpenBackups" class="btn btn-outline-light btn-sm">
+          <button id="btnOpenBackups" class="btn btn-light btn-sm">
             <i class="bi bi-clock-history me-1"></i> Backups
           </button>
-          <button id="btnDeleteAll" class="btn btn-danger btn-sm">
+          <button id="btnDeleteAll" class="btn btn-outline-danger btn-sm">
             <i class="bi bi-trash3 me-1"></i> Delete All
           </button>
         </div>
@@ -43,37 +46,36 @@
   </nav>
 
   <main class="container-fluid px-3 px-md-4 py-4">
-    <section class="hero-card mb-4">
-      <div class="row align-items-center g-3">
-        <div class="col-lg-7">
-          <h1 class="h3 mb-2">Your simple product inventory</h1>
-          <p class="mb-0 text-muted">Organize daily-use products by category, sub-category, and status. Data stays in this browser.</p>
+    <section class="hero-card mb-2">
+      <div class="row align-items-center g-2">
+        <div class="col-lg-7 d-none d-lg-block">
+          <h1 class="h4 mb-1">Your simple product inventory</h1>
+          <p class="mb-0 text-muted" style="font-size:0.85rem;">Organize daily-use products by category, sub-category, and status. Data stays in this browser.</p>
         </div>
-        <div class="col-lg-5">
-          <div class="input-group search-box">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input id="searchInput" type="search" class="form-control" placeholder="Search products, categories, sub-categories...">
-            <button id="btnClearSearch" class="btn btn-outline-secondary" type="button">Clear</button>
+        <div class="col-lg-5 col-12">
+          <div class="input-group search-container input-group-sm">
+            <span class="input-group-text bg-white border-end-0 px-2">
+              <i class="bi bi-search text-muted"></i>
+            </span>
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control border-start-0 ps-0"
+              placeholder="Search items..."
+              autocomplete="off"
+            />
+            <button class="btn btn-outline-secondary px-2" type="button" id="btnClearSearch">
+              Clear
+            </button>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="row g-3 mb-4" id="summaryCards"></section>
+    <section id="summaryCards" class="mb-4"></section>
 
-    <section class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-      <div>
-        <h2 class="h5 mb-1">Inventory</h2>
-        <div class="text-muted small">Use accordions to browse categories and manage products.</div>
-      </div>
-      <div class="d-flex flex-wrap gap-2">
-        <button id="btnSeedSampleData" class="btn btn-outline-secondary btn-sm">
-          <i class="bi bi-stars me-1"></i> Load Sample
-        </button>
-        <button id="btnAddCategory" class="btn btn-primary btn-sm">
-          <i class="bi bi-plus-lg me-1"></i> Add Category
-        </button>
-      </div>
+    <section class="d-none d-md-block mb-3">
+      <h2 class="h5 mb-1">Inventory</h2>
     </section>
 
     <section id="emptyState" class="empty-state d-none">
@@ -86,6 +88,12 @@
     </section>
 
     <section id="inventoryContainer"></section>
+
+    <div id="addCategoryActionContainer" class="mt-4">
+      <button id="btnAddCategory" class="btn btn-outline-primary w-100 py-3" style="border-radius: 16px; border-style: dashed; border-width: 2px;">
+        <i class="bi bi-plus-lg me-2"></i> Add New Category
+      </button>
+    </div>
   </main>
 
   <input type="file" id="jsonFileInput" class="d-none" accept="application/json,.json">

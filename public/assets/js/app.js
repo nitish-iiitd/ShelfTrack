@@ -200,21 +200,21 @@ async function handleProductSubmit(event) {
 }
 
 async function handleInventoryClick(event) {
-  const button = event.target.closest('button[data-action]');
-  if (!button) return;
+  const actionEl = event.target.closest('[data-action]');
+  if (!actionEl) return;
 
-  const action = button.dataset.action;
+  const action = actionEl.dataset.action;
 
   try {
-    if (action === 'add-sub-category') openAddSubCategoryModal(button.dataset.categoryId);
-    if (action === 'edit-category') openEditCategoryModal(button.dataset.categoryId);
-    if (action === 'edit-sub-category') openEditSubCategoryModal(button.dataset.subCategoryId);
-    if (action === 'add-product') openAddProductModal(button.dataset.categoryId, button.dataset.subCategoryId);
-    if (action === 'edit-product') openEditProductModal(button.dataset.productId);
+    if (action === 'add-sub-category') openAddSubCategoryModal(actionEl.dataset.categoryId);
+    if (action === 'edit-category') openEditCategoryModal(actionEl.dataset.categoryId);
+    if (action === 'edit-sub-category') openEditSubCategoryModal(actionEl.dataset.subCategoryId);
+    if (action === 'add-product') openAddProductModal(actionEl.dataset.categoryId, actionEl.dataset.subCategoryId);
+    if (action === 'edit-product') openEditProductModal(actionEl.dataset.productId);
 
     if (action === 'delete-category') {
       await confirmAction('Delete Category', 'This will delete the category and all sub-categories/products inside it.', async () => {
-        await deleteCategoryCascade(button.dataset.categoryId);
+        await deleteCategoryCascade(actionEl.dataset.categoryId);
         showToast('Category deleted.', 'success');
         await refresh();
       });
@@ -222,7 +222,7 @@ async function handleInventoryClick(event) {
 
     if (action === 'delete-sub-category') {
       await confirmAction('Delete Sub-category', 'This will delete the sub-category and all products inside it.', async () => {
-        await deleteSubCategoryCascade(button.dataset.subCategoryId);
+        await deleteSubCategoryCascade(actionEl.dataset.subCategoryId);
         showToast('Sub-category deleted.', 'success');
         await refresh();
       });
@@ -230,14 +230,16 @@ async function handleInventoryClick(event) {
 
     if (action === 'delete-product') {
       await confirmAction('Delete Product', 'This product will be removed from your inventory.', async () => {
-        await deleteProduct(button.dataset.productId);
+        await deleteProduct(actionEl.dataset.productId);
         showToast('Product deleted.', 'success');
         await refresh();
       });
     }
 
     if (action === 'toggle-product') {
-      await toggleProductStatus(button.dataset.productId);
+      // For checkboxes, prevent default so state doesn't flip out of sync before refresh
+      if (actionEl.tagName === 'INPUT') event.preventDefault();
+      await toggleProductStatus(actionEl.dataset.productId);
       await refresh();
     }
   } catch (error) {

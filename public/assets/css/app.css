@@ -129,65 +129,83 @@ main.container-fluid {
   font-size: 0.95rem;
 }
 
-/* Summary cards */
+/* Summary chips */
 
-.summary-card {
-  height: 100%;
-  background: var(--app-card);
-  border: 1px solid var(--app-border);
-  border-radius: 18px;
-  padding: 1rem;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.045);
+.summary-chips-container {
   display: flex;
-  align-items: center;
-  gap: 0.8rem;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
 }
 
-.summary-icon {
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
-  border-radius: 14px;
+.summary-chips-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
+.summary-chip {
+  flex: 0 0 auto;
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+  border-radius: 100px;
+  padding: 0.35rem 0.8rem 0.35rem 0.35rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.summary-chip-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.15rem;
+  font-size: 0.95rem;
 }
 
-.summary-value {
-  font-size: 1.35rem;
+.summary-chip-content {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.summary-chip-value {
+  font-size: 1rem;
   font-weight: 800;
   line-height: 1;
-  letter-spacing: -0.03em;
 }
 
-.summary-label {
+.summary-chip-label {
   font-size: 0.8rem;
   color: var(--app-muted);
-  margin-top: 0.2rem;
+  font-weight: 500;
 }
 
-.summary-primary .summary-icon {
+.summary-primary .summary-chip-icon {
   background: var(--app-primary-soft);
   color: var(--app-primary);
 }
 
-.summary-info .summary-icon {
+.summary-info .summary-chip-icon {
   background: #eef2ff;
   color: #4f46e5;
 }
 
-.summary-warning .summary-icon {
+.summary-warning .summary-chip-icon {
   background: var(--app-warning-soft);
   color: var(--app-warning);
 }
 
-.summary-success .summary-icon {
+.summary-success .summary-chip-icon {
   background: var(--app-success-soft);
   color: var(--app-success);
 }
 
-.summary-muted .summary-icon {
+.summary-muted .summary-chip-icon {
   background: #f3f4f6;
   color: #4b5563;
 }
@@ -227,25 +245,27 @@ main.container-fluid {
 }
 
 .category-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background: var(--app-primary-soft);
   color: var(--app-primary);
-  font-size: 1.15rem;
+  font-size: 1rem;
 }
 
 .category-title-wrap,
 .subcategory-title-wrap {
   min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .category-title,
 .subcategory-title {
-  display: block;
   font-weight: 750;
   letter-spacing: -0.02em;
   overflow: hidden;
@@ -259,21 +279,19 @@ main.container-fluid {
 
 .category-count,
 .subcategory-count {
-  display: block;
   color: var(--app-muted);
   font-size: 0.78rem;
-  margin-top: 0.15rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.category-chevron,
-.subcategory-chevron {
-  color: var(--app-muted);
+.toggle-chevron {
   transition: transform 0.2s ease;
 }
 
-.category-toggle[aria-expanded="true"] .category-chevron,
-.subcategory-toggle[aria-expanded="true"] .subcategory-chevron {
-  transform: rotate(180deg);
+.category-toggle[aria-expanded="true"] .toggle-chevron,
+.subcategory-toggle[aria-expanded="true"] .toggle-chevron {
+  transform: rotate(90deg);
 }
 
 .category-actions,
@@ -318,27 +336,6 @@ main.container-fluid {
   margin-bottom: 0;
 }
 
-.subcategory-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.65rem;
-  align-items: center;
-  padding: 0.85rem;
-}
-
-.subcategory-toggle {
-  border: 0;
-  background: transparent;
-  padding: 0;
-  min-width: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 24px;
-  align-items: center;
-  gap: 0.5rem;
-  text-align: left;
-  color: var(--app-text);
-}
-
 .subcategory-title {
   font-size: 0.98rem;
 }
@@ -348,11 +345,6 @@ main.container-fluid {
 }
 
 .product-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 0;
   border-top: 1px dashed #e5e7eb;
 }
 
@@ -505,31 +497,7 @@ main.container-fluid {
   }
 
   #summaryCards {
-    --bs-gutter-x: 0.6rem;
-    --bs-gutter-y: 0.6rem;
-    margin-bottom: 1rem !important;
-  }
-
-  .summary-card {
-    padding: 0.75rem;
-    border-radius: 16px;
-    gap: 0.65rem;
-  }
-
-  .summary-icon {
-    width: 34px;
-    height: 34px;
-    flex-basis: 34px;
-    border-radius: 12px;
-    font-size: 1rem;
-  }
-
-  .summary-value {
-    font-size: 1.12rem;
-  }
-
-  .summary-label {
-    font-size: 0.72rem;
+    margin-bottom: 0.5rem !important;
   }
 
   section.d-flex.flex-wrap.justify-content-between {
@@ -568,29 +536,17 @@ main.container-fluid {
     margin-bottom: 0.85rem;
   }
 
-  .category-header,
-  .subcategory-header {
-    grid-template-columns: 1fr;
-    gap: 0.7rem;
-  }
-
-  .category-actions,
-  .subcategory-actions {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 42px 42px;
-    width: 100%;
-    gap: 0.5rem;
-  }
-
   .category-actions .btn,
   .subcategory-actions .btn {
     min-height: 42px;
   }
 
   .icon-action-btn {
-    width: 42px;
-    height: 42px;
-    min-height: 42px;
+    width: 34px;
+    height: 34px;
+    min-height: 34px;
+    padding: 0;
+    font-size: 0.9rem;
   }
 
   .subcategory-list {
@@ -599,11 +555,6 @@ main.container-fluid {
 
   .subcategory-card {
     border-radius: 16px;
-  }
-
-  .product-row {
-    grid-template-columns: 1fr;
-    gap: 0.55rem;
   }
 
   .product-actions {
@@ -652,24 +603,11 @@ main.container-fluid {
     white-space: normal;
   }
 
-  .category-toggle {
-    grid-template-columns: 38px minmax(0, 1fr) 24px;
-  }
-
-  .category-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 13px;
-  }
-
-  .category-actions,
-  .subcategory-actions {
-    grid-template-columns: 1fr 40px 40px;
-  }
-
   .icon-action-btn {
-    width: 40px;
-    height: 40px;
-    min-height: 40px;
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+    font-size: 0.85rem;
   }
 }

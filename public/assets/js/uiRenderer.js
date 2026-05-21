@@ -41,19 +41,19 @@ export function renderSummaryCards(container, snapshot) {
     },
   ];
 
-  container.innerHTML = cards.map((card) => `
-    <div class="col-6 col-md-4 col-xl">
-      <div class="summary-card ${card.className}">
-        <div class="summary-icon">
-          <i class="bi ${card.icon}"></i>
-        </div>
-        <div>
-          <div class="summary-value">${card.value}</div>
-          <div class="summary-label">${card.title}</div>
-        </div>
+  const html = cards.map((card) => `
+    <div class="summary-chip ${card.className}">
+      <div class="summary-chip-icon">
+        <i class="bi ${card.icon}"></i>
+      </div>
+      <div class="summary-chip-content">
+        <span class="summary-chip-value">${card.value}</span>
+        <span class="summary-chip-label">${card.title}</span>
       </div>
     </div>
   `).join('');
+
+  container.innerHTML = `<div class="summary-chips-container">${html}</div>`;
 }
 
 export function renderInventory(container, emptyState, snapshot, searchTerm = '') {
@@ -68,6 +68,21 @@ export function renderInventory(container, emptyState, snapshot, searchTerm = ''
     return;
   }
 
+  // Preserve collapse state
+  const existingContainer = container.innerHTML.trim() !== '';
+  const expandedCategoryIds = new Set();
+  const expandedSubcategoryIds = new Set();
+
+  if (existingContainer) {
+    Array.from(container.querySelectorAll('.collapse.show')).forEach((el) => {
+      if (el.id.startsWith('category-collapse-')) expandedCategoryIds.add(el.id);
+      if (el.id.startsWith('subcategory-collapse-')) expandedSubcategoryIds.add(el.id);
+    });
+  } else {
+    // First render: categories expanded by default
+    snapshot.categories.forEach((c) => expandedCategoryIds.add(`category-collapse-${c.id}`));
+  }
+
   const html = snapshot.categories.map((category) => {
     const categorySubCategories = snapshot.sub_categories.filter((item) => item.category_id === category.id);
     const categoryProducts = snapshot.products.filter((item) => item.category_id === category.id);
@@ -76,6 +91,7 @@ export function renderInventory(container, emptyState, snapshot, searchTerm = ''
     const categoryTotalCount = categoryProducts.length;
 
     const categoryCollapseId = `category-collapse-${category.id}`;
+    const isCategoryExpanded = expandedCategoryIds.has(categoryCollapseId);
 
     const renderedSubCategories = categorySubCategories.map((subCategory) => {
       const subCategoryProducts = snapshot.products.filter((item) => item.sub_category_id === subCategory.id);
@@ -84,7 +100,8 @@ export function renderInventory(container, emptyState, snapshot, searchTerm = ''
 
       if (query && !subCategoryMatches && filteredProducts.length === 0) return '';
 
-      return renderSubCategory(subCategory, filteredProducts, subCategoryProducts);
+      const isSubExpanded = expandedSubcategoryIds.has(`subcategory-collapse-${subCategory.id}`);
+      return renderSubCategory(subCategory, filteredProducts, subCategoryProducts, isSubExpanded);
     }).filter(Boolean).join('');
 
     const categoryMatches = !query || category.name.toLowerCase().includes(query);
@@ -92,60 +109,37 @@ export function renderInventory(container, emptyState, snapshot, searchTerm = ''
 
     return `
       <div class="inventory-card" data-category-id="${category.id}">
-        <div class="category-header">
-          <button
-            class="category-toggle"
-            type="button"
+        <div class="category-header d-flex align-items-center flex-nowrap w-100 py-1 px-2 border-bottom gap-2">
+          <div
+            class="category-toggle d-flex align-items-center flex-grow-1 text-start bg-transparent border-0 p-0 overflow-hidden"
+            role="button"
             data-bs-toggle="collapse"
             data-bs-target="#${categoryCollapseId}"
-            aria-expanded="true"
+            aria-expanded="${isCategoryExpanded}"
             aria-controls="${categoryCollapseId}"
           >
-            <span class="category-icon">
+            <i class="bi bi-chevron-right toggle-chevron me-2 text-muted"></i>
+            <span class="category-icon me-2 flex-shrink-0">
               <i class="bi bi-folder2-open"></i>
             </span>
+            <span class="category-title text-wrap me-2 fw-bold" style="font-size:0.85rem; line-height:1.2;">${escapeHtml(category.name)}</span>
+            <span class="category-count text-muted small flex-shrink-0" style="font-size:0.75rem;">${categoryFinishedCount}/${categoryTotalCount} finished</span>
+          </div>
 
-            <span class="category-title-wrap">
-              <span class="category-title">${escapeHtml(category.name)}</span>
-              <span class="category-count">${categoryFinishedCount}/${categoryTotalCount} finished</span>
-            </span>
-
-            <span class="category-chevron">
-              <i class="bi bi-chevron-down"></i>
-            </span>
-          </button>
-
-          <div class="category-actions">
-            <button
-              class="btn btn-primary btn-sm action-main-btn"
-              data-action="add-sub-category"
-              data-category-id="${category.id}"
-            >
-              <i class="bi bi-plus-lg"></i>
-              <span>Add</span>
-            </button>
-
-            <button
-              class="btn btn-light btn-sm icon-action-btn"
-              title="Edit category"
-              data-action="edit-category"
-              data-category-id="${category.id}"
-            >
-              <i class="bi bi-pencil"></i>
-            </button>
-
-            <button
-              class="btn btn-light btn-sm icon-action-btn text-danger"
-              title="Delete category"
-              data-action="delete-category"
-              data-category-id="${category.id}"
-            >
-              <i class="bi bi-trash"></i>
-            </button>
+          <div class="category-actions d-flex align-items-center flex-shrink-0 gap-1">
+            <button class="btn btn-primary btn-sm icon-action-btn" title="Add sub-category" data-action="add-sub-category" data-category-id="${category.id}"><i class="bi bi-plus-lg"></i></button>
+            <div class="dropdown">
+              <button class="btn btn-light btn-sm icon-action-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots-vertical"></i></button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                <li><button class="dropdown-item" data-action="edit-category" data-category-id="${category.id}"><i class="bi bi-pencil me-2 text-muted"></i>Edit</button></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><button class="dropdown-item text-danger" data-action="delete-category" data-category-id="${category.id}"><i class="bi bi-trash me-2"></i>Delete</button></li>
+              </ul>
+            </div>
           </div>
         </div>
 
-        <div class="collapse show" id="${categoryCollapseId}">
+        <div class="collapse ${isCategoryExpanded ? 'show' : ''}" id="${categoryCollapseId}">
           <div class="subcategory-list">
             ${renderedSubCategories || renderNoSubCategories(category.id)}
           </div>
@@ -163,7 +157,7 @@ export function renderInventory(container, emptyState, snapshot, searchTerm = ''
   `;
 }
 
-function renderSubCategory(subCategory, filteredProducts, allSubCategoryProducts) {
+function renderSubCategory(subCategory, filteredProducts, allSubCategoryProducts, isSubExpanded) {
   const subCategoryCollapseId = `subcategory-collapse-${subCategory.id}`;
 
   const finishedCount = allSubCategoryProducts.filter((item) => item.status === PRODUCT_STATUS.FINISHED).length;
@@ -173,59 +167,36 @@ function renderSubCategory(subCategory, filteredProducts, allSubCategoryProducts
 
   return `
     <div class="subcategory-card" data-sub-category-id="${subCategory.id}">
-      <div class="subcategory-header">
-        <button
-          class="subcategory-toggle"
-          type="button"
+      <div class="subcategory-header d-flex align-items-center flex-nowrap w-100 py-1 px-2 border-bottom gap-2">
+        <div
+          class="subcategory-toggle d-flex align-items-center flex-grow-1 text-start bg-transparent border-0 p-0 overflow-hidden"
+          role="button"
           data-bs-toggle="collapse"
           data-bs-target="#${subCategoryCollapseId}"
-          aria-expanded="false"
+          aria-expanded="${isSubExpanded}"
           aria-controls="${subCategoryCollapseId}"
         >
-          <span class="subcategory-title-wrap">
-            <span class="subcategory-title">${escapeHtml(subCategory.name)}</span>
-            <span class="subcategory-count">${finishedCount}/${totalCount} finished</span>
-          </span>
+          <i class="bi bi-chevron-right toggle-chevron me-2 text-muted"></i>
+          <span class="subcategory-title text-wrap me-2 fw-bold" style="font-size:0.8rem; line-height:1.2;">${escapeHtml(subCategory.name)}</span>
+          <span class="subcategory-count text-muted small flex-shrink-0" style="font-size:0.75rem;">${finishedCount}/${totalCount} finished</span>
+        </div>
 
-          <span class="subcategory-chevron">
-            <i class="bi bi-chevron-down"></i>
-          </span>
-        </button>
-
-        <div class="subcategory-actions">
-          <button
-            class="btn btn-outline-primary btn-sm action-main-btn"
-            data-action="add-product"
-            data-category-id="${subCategory.category_id}"
-            data-sub-category-id="${subCategory.id}"
-          >
-            <i class="bi bi-plus-lg"></i>
-            <span>Product</span>
-          </button>
-
-          <button
-            class="btn btn-light btn-sm icon-action-btn"
-            title="Edit sub-category"
-            data-action="edit-sub-category"
-            data-sub-category-id="${subCategory.id}"
-          >
-            <i class="bi bi-pencil"></i>
-          </button>
-
-          <button
-            class="btn btn-light btn-sm icon-action-btn text-danger"
-            title="Delete sub-category"
-            data-action="delete-sub-category"
-            data-sub-category-id="${subCategory.id}"
-          >
-            <i class="bi bi-trash"></i>
-          </button>
+        <div class="subcategory-actions d-flex align-items-center flex-shrink-0 gap-1">
+          <button class="btn btn-outline-primary btn-sm icon-action-btn" title="Add product" data-action="add-product" data-category-id="${subCategory.category_id}" data-sub-category-id="${subCategory.id}"><i class="bi bi-plus-lg"></i></button>
+          <div class="dropdown">
+            <button class="btn btn-light btn-sm icon-action-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots-vertical"></i></button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+              <li><button class="dropdown-item" data-action="edit-sub-category" data-sub-category-id="${subCategory.id}"><i class="bi bi-pencil me-2 text-muted"></i>Edit</button></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item text-danger" data-action="delete-sub-category" data-sub-category-id="${subCategory.id}"><i class="bi bi-trash me-2"></i>Delete</button></li>
+            </ul>
+          </div>
         </div>
       </div>
 
-      <div class="collapse" id="${subCategoryCollapseId}">
+      <div class="collapse ${isSubExpanded ? 'show' : ''}" id="${subCategoryCollapseId}">
         <div class="product-list">
-          ${productHtml || '<div class="small-empty-row">No products in this sub-category yet.</div>'}
+          ${productHtml || '<div class="small-empty-row" style="font-size:0.8rem;">No products in this sub-category yet.</div>'}
         </div>
       </div>
     </div>
@@ -248,43 +219,33 @@ function renderNoSubCategories(categoryId) {
 }
 
 function renderProduct(product) {
-  const nextLabel = product.status === PRODUCT_STATUS.IN_USE ? 'Mark Finished' : 'Mark In Use';
-  const badgeClass = product.status === PRODUCT_STATUS.IN_USE ? 'status-in-use' : 'status-finished';
+  const isFinished = product.status === PRODUCT_STATUS.FINISHED;
+  const nextLabel = isFinished ? 'Mark In Use' : 'Mark Finished';
+  const nameStyle = isFinished ? 'text-decoration-line-through text-muted' : '';
 
   return `
-    <div class="product-row" data-product-id="${product.id}">
-      <div class="product-info">
-        <div class="product-name">${escapeHtml(product.name)}</div>
+    <div class="product-row d-flex align-items-center flex-nowrap w-100 py-1 px-2 border-bottom gap-2" data-product-id="${product.id}">
+      <div class="product-name text-wrap flex-grow-1 fw-semibold mb-0 ${nameStyle}" style="font-size:0.85rem; line-height:1.2; cursor:pointer;" data-action="toggle-product" data-product-id="${product.id}">${escapeHtml(product.name)}</div>
+      
+      <input 
+        type="checkbox" 
+        class="form-check-input status-checkbox flex-shrink-0 m-0" 
+        style="width:1.15rem; height:1.15rem; cursor:pointer;"
+        data-action="toggle-product" 
+        data-product-id="${product.id}" 
+        title="${nextLabel}"
+        ${isFinished ? 'checked' : ''}
+      >
 
-        <button
-          class="status-badge ${badgeClass}"
-          data-action="toggle-product"
-          data-product-id="${product.id}"
-          title="${nextLabel}"
-        >
-          <i class="bi ${product.status === PRODUCT_STATUS.IN_USE ? 'bi-play-fill' : 'bi-check-lg'}"></i>
-          ${PRODUCT_STATUS_LABEL[product.status]}
-        </button>
-      </div>
-
-      <div class="product-actions">
-        <button
-          class="btn btn-light btn-sm icon-action-btn"
-          title="Edit product"
-          data-action="edit-product"
-          data-product-id="${product.id}"
-        >
-          <i class="bi bi-pencil"></i>
-        </button>
-
-        <button
-          class="btn btn-light btn-sm icon-action-btn text-danger"
-          title="Delete product"
-          data-action="delete-product"
-          data-product-id="${product.id}"
-        >
-          <i class="bi bi-trash"></i>
-        </button>
+      <div class="product-actions d-flex align-items-center flex-shrink-0 gap-1">
+        <div class="dropdown">
+          <button class="btn btn-light btn-sm icon-action-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots-vertical"></i></button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+            <li><button class="dropdown-item" data-action="edit-product" data-product-id="${product.id}"><i class="bi bi-pencil me-2 text-muted"></i>Edit</button></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item text-danger" data-action="delete-product" data-product-id="${product.id}"><i class="bi bi-trash me-2"></i>Delete</button></li>
+          </ul>
+        </div>
       </div>
     </div>
   `;
