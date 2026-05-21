@@ -1,6 +1,7 @@
-const CACHE_NAME = 'shelftrack-v2';
+const CACHE_NAME = 'shelftrack-v3';
 const ASSETS_TO_CACHE = [
   './index.html',
+  './docs.html',
   './icon.svg',
   './manifest.json',
   './assets/css/app.css',

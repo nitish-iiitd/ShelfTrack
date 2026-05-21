@@ -57,6 +57,9 @@
           <button id="btnOpenBackups" class="btn btn-light btn-sm">
             <i class="bi bi-clock-history me-1"></i> Backups
           </button>
+          <a href="docs.html" class="btn btn-light btn-sm">
+            <i class="bi bi-question-circle me-1"></i> Help & Docs
+          </a>
           <button id="btnDeleteAll" class="btn btn-outline-danger btn-sm">
             <i class="bi bi-trash3 me-1"></i> Delete All
           </button>
@@ -102,9 +105,14 @@
       <i class="bi bi-box2-heart"></i>
       <h3>No inventory yet</h3>
       <p>Create your first category or load sample data to begin.</p>
-      <button class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center" id="btnEmptyAddCategory">
-        <i class="bi bi-plus me-1"></i> Add Category
-      </button>
+      <div class="d-flex flex-column align-items-center gap-2">
+        <button class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center" id="btnEmptyAddCategory">
+          <i class="bi bi-plus-lg me-1"></i> Add Category
+        </button>
+        <a href="docs.html" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center">
+          <i class="bi bi-question-circle me-1"></i> How to use ShelfTrack
+        </a>
+      </div>
     </section>
 
     <section id="inventoryContainer"></section>
