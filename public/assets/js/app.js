@@ -343,9 +343,9 @@ async function openBackupsModal() {
     }
 
     if (button.dataset.backupAction === 'restore') {
+      modals.backups.hide();
       await confirmAction('Restore Backup', 'Current inventory will be replaced. A backup of current data will be created first.', async () => {
         await restoreBackup(backup.id);
-        modals.backups.hide();
         showToast('Backup restored.', 'success');
         await refresh();
       });
